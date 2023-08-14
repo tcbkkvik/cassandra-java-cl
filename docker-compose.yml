@@ -1,0 +1,29 @@
+version: '3.1'
+services:
+  mycassandra:
+    image: cassandra:4.0.11
+    container_name: mycassandra
+    ports:
+      - "9042:9042"
+      - "7000:7000"
+    volumes:
+#      - /myDB:/var/lib/cassandra
+      - /C/Users/torc/IdeaProjects/cassandra/cassandra-java-cl/myDB:/var/lib/cassandra
+#      - $PWD/myDB:/var/lib/cassandra
+# Docker for Windows does not accept relative paths in bind-mount specifications
+#  - prefixing the relative path with $PWD satisfies this requirement.
+#    -> level=warning msg="The \"PWD\" variable is not set. Defaulting to a blank string.
+    environment:
+      - CASSANDRA_CLUSTER_NAME=mycluster
+
+
+  mycassandra2:
+    image: cassandra:4.0.11
+    container_name: mycassandra2
+    ports:
+      - "9043:9042"
+#    volumes:
+#      - /C/Users/torc/IdeaProjects/cassandra/cassandra-java/myDB:/var/lib/cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=mycluster
+      - CASSANDRA_SEEDS=mycassandra
