@@ -1,0 +1,21 @@
+version: '3.1'
+services:
+  myscylla:
+    image: scylladb/scylla:5.2
+    container_name: myscylla
+    ports:
+      - "9042:9042"
+      - "7000:7000"
+    volumes:
+      - /C/Users/torc/IdeaProjects/cassandra/cassandra-java-cl/scylladb/db:/var/lib/todo
+    environment:
+      - CASSANDRA_CLUSTER_NAME=mycluster
+
+  myscylla2:
+    image: scylladb/scylla:5.2
+    container_name: myscylla2
+    ports:
+      - "9043:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=mycluster
+      - CASSANDRA_SEEDS=myscylla

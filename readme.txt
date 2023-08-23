@@ -13,10 +13,21 @@ Some docs:
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/mapper/
  https://docs.datastax.com/en/driver-matrix/docs/driver-matrix.html#quick_start/qsQuickstart_c.html
  https://stackoverflow.com/questions/16870502/how-to-connect-cassandra-using-java-class
+
 Maven:
  https://search.maven.org/artifact/com.datastax.oss/java-driver-core/4.17.0/jar?eh=
  https://central.sonatype.com/artifact/com.datastax.oss/java-driver-core/4.17.0?smo=true
   A driver for Apache Cassandra(R) 2.1+ that works exclusively with the Cassandra Query Language version 3 (CQL3) and Cassandra's native protocol versions 3 and above.
+
+ScyllaDB - a Cassandra alternative (compatible with CQL & features):
+ "ScyllaDB is a high-performance NoSQL database system, fully compatible with Apache Cassandra."
+ https://www.scylladb.com/doc
+ https://www.scylladb.com/open-source-nosql-database/
+ https://lp.scylladb.com/real-time-big-data-database-principles-offer.html (white paper)
+ https://hub.docker.com/r/scylladb/scylla
+    docker exec -it myscylla bash
+    nodetool help
+    cqlsh
 
 
 -------------------------------
