@@ -13,6 +13,7 @@ Some docs:
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/mapper/
  https://docs.datastax.com/en/driver-matrix/docs/driver-matrix.html#quick_start/qsQuickstart_c.html
  https://stackoverflow.com/questions/16870502/how-to-connect-cassandra-using-java-class
+ https://github.com/datastaxdevs/workshop-intro-to-cassandra
 
 Maven:
  https://search.maven.org/artifact/com.datastax.oss/java-driver-core/4.17.0/jar?eh=
