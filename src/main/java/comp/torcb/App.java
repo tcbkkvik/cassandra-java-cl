@@ -3,7 +3,7 @@ package comp.torcb;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
-import com.datastax.oss.driver.internal.core.cql.DefaultSimpleStatement;
+import static comp.torcb.Utils.formatPr;
 
 import java.util.UUID;
 
@@ -54,21 +54,6 @@ INSERT INTO NerdMovies (movie, director, main_actor, year)
 INSERT INTO NerdMovies JSON '{"movie": "Serenity", "director": "Joss Whedon", "year": 2005}';
 
          */
-
-    private static void formatPr(ResultSet rs) {
-        var req = rs.getExecutionInfo().getRequest();
-        String query = ((DefaultSimpleStatement) req).getQuery();
-        System.out.println(query);
-        int n = 0;
-        for (Row r : rs) {
-            ++n;
-            System.out.println(" -> " + r.getFormattedContents());
-        }
-        if (n == 0) {
-            System.out.println(" -> " + (rs.wasApplied() ? "ok" : "failed; wasApplied==false"));
-        }
-        System.out.println();
-    }
 
     void initSchemas(CqlSession session) {
 //        int replication_factor = 3;

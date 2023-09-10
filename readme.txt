@@ -8,6 +8,8 @@ Github: https://github.com/tcbkkvik/cassandra-java-cl
 Some docs:
  https://cassandra.apache.org/doc/
  https://hub.docker.com/_/cassandra/
+ https://www.datastax.com/blog/deep-look-cql-where-clause
+ https://www.datastax.com/blog/allow-filtering-explained
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/core/
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/query_builder/
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/mapper/
@@ -34,9 +36,13 @@ ScyllaDB - a Cassandra alternative (compatible with CQL & features):
 -------------------------------
 A few key commands:
 docker compose up
+docker inspect -f '{{.NetworkSettings.IPAddress}}' mycassandra
+docker inspect --format='{{range .NetworkSettings.Networks}}{{println .IPAddress}}{{end}}' mycassandra
+ -- eg. 172.22.0.3
+docker exec -i -t mycassandra bash -c ‘nodetool status’
+docker exec -it mycassandra bash
 docker compose stop
 docker compose start
-docker exec -it mycassandra bash
 
 -------------------------------
 Examples from running CQL commands in bash -> cqlsh:

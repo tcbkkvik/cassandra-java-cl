@@ -1,7 +1,8 @@
 version: '3.1'
 services:
   mycassandra:
-    image: cassandra:4.0.11
+#    image: cassandra:4.0.11
+    image: cassandra:4.1.3
     container_name: mycassandra
     ports:
       - "9042:9042"
@@ -15,15 +16,15 @@ services:
 #    -> level=warning msg="The \"PWD\" variable is not set. Defaulting to a blank string.
     environment:
       - CASSANDRA_CLUSTER_NAME=mycluster
+      - CASSANDRA_DC=datacenter1
+#      - disk_access_mode=mmap_index_only
 
 
-  mycassandra2:
-    image: cassandra:4.0.11
-    container_name: mycassandra2
-    ports:
-      - "9043:9042"
-#    volumes:
-#      - /C/Users/torc/IdeaProjects/cassandra/cassandra-java/myDB:/var/lib/cassandra
-    environment:
-      - CASSANDRA_CLUSTER_NAME=mycluster
-      - CASSANDRA_SEEDS=mycassandra
+#  mycassandra2:
+#    image: cassandra:4.1.3
+#    container_name: mycassandra2
+#    ports:
+#      - "9043:9042"
+#    environment:
+#      - CASSANDRA_CLUSTER_NAME=mycluster
+#      - CASSANDRA_SEEDS=172.22.0.3
