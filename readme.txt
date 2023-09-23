@@ -13,9 +13,12 @@ Some docs:
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/core/
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/query_builder/
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/mapper/
+ https://docs.datastax.com/en/cql-oss/3.3/cql/cql_using/useInsertJSON.html
  https://docs.datastax.com/en/driver-matrix/docs/driver-matrix.html#quick_start/qsQuickstart_c.html
  https://stackoverflow.com/questions/16870502/how-to-connect-cassandra-using-java-class
  https://github.com/datastaxdevs/workshop-intro-to-cassandra
+ https://www.youtube.com/watch?v=yShQIKMt4sI
+   (DS220.02 Relational Vs. Apache Cassandra | Data Modeling with Apache Cassandra)
 
 Maven:
  https://search.maven.org/artifact/com.datastax.oss/java-driver-core/4.17.0/jar?eh=

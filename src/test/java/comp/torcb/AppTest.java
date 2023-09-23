@@ -4,72 +4,41 @@ import static org.junit.Assert.*;
 import static comp.torcb.Utils.formatPr;
 
 import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.CqlSessionBuilder;
-import com.datastax.oss.driver.api.core.cql.AsyncResultSet;
-import com.datastax.oss.driver.api.core.cql.PreparedStatement;
-import com.datastax.oss.driver.api.core.cql.ResultSet;
-import com.datastax.oss.driver.api.core.cql.Row;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import com.datastax.oss.driver.api.core.cql.*;
+import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
+import com.datastax.oss.driver.api.querybuilder.select.Select;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.util.Properties;
-import java.util.UUID;
+import java.util.Random;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Unit test for simple App.
  */
+@SuppressWarnings("CommentedOutCode")
 public class AppTest {
     static final Logger logger = LoggerFactory.getLogger(AppTest.class);
-    private CqlSession session;
+    private static CqlSession session;
 
-//    @BeforeClass public void commonInit() {}
-
-    @Before
-    public void init() {
-        Properties pr = System.getProperties();
-        pr.setProperty("datastax-java-driver.basic.request.timeout", "15 seconds");
-        //Session
-        session = newSession().build();
-        initKeySpace(session);
+//    @Before
+    @BeforeClass
+    public static void before() {
+        session = new SessionBuilder().build();
     }
 
-    private static void initKeySpace(CqlSession session) {
-        int replication_factor = 1;
-//        int replication_factor = 3;
-        ResultSet rsKS = session
-                .execute("CREATE KEYSPACE IF NOT EXISTS myKeySp\n" +
-                         " WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : "
-                         + replication_factor + "};");
-        ResultSet rsUse = session.execute("USE myKeySp;");
-        formatPr(rsUse);
-    }
-
-    private static CqlSessionBuilder newSession() {
-        UUID clientId = UUID.randomUUID();
-        logger.info("newSession, cliendId " + clientId);
-        return CqlSession.builder()
-                .withApplicationName("learnCasApp")
-                .withClientId(clientId)
-                .withLocalDatacenter("datacenter1")
-//                .withKeyspace("myKeySp")
-//                .withConfigLoader(new DefaultDriverConfigLoader())
-                .addContactPoint(new InetSocketAddress(9042));
-    }
-
-    @After
-    public void after() {
+//    @After
+    @AfterClass
+    public static void after() {
         session.close();
     }
 
     @Test
     public void version() {
-        //Version
+        logger.info("version_queryBuilder..");
         ResultSet rs = session.execute("select release_version from system.local");
         Row row = rs.one();
         assertNotNull(row);
@@ -78,7 +47,21 @@ public class AppTest {
     }
 
     @Test
-    public void simpleQueries() throws InterruptedException {
+    public void version_queryBuilder() {
+        //The query builder is NOT a crutch to learn CQL
+        //While the fluent API guides you, it does not encode every rule of the CQL grammar.
+        // Also, it supports a wide range of Cassandra versions, some of which may be more
+        // recent than your production target, or not even released yet.
+        Select select = QueryBuilder
+                .selectFrom("system", "local")
+                .column("release_version");
+        logger.info("version_queryBuilder cql: " + select.asCql());
+        ResultSet res = session.execute(select.build());
+        formatPr(res);
+    }
+
+    @Test
+    public void simpleQueries() {
         ResultSet rsCreateTable = session
                 .execute("""
                         CREATE TABLE IF NOT EXISTS t (  pk int,
@@ -110,35 +93,35 @@ public class AppTest {
                     .execute("UPDATE counters SET cn=cn+1 WHERE pk=0;"));
             formatPr(session
                     .execute("SELECT * from counters;"));
-            Thread.sleep(10);
         }
     }
 
     @Test
-    public void executeAsync() throws InterruptedException {
-        final String[] names = {"Alf", "Chris", "Irwin", "Mary" };
+    public void executeAsync() {
+        final String[] names = {"Bob", "Chris", "Mary" };
         //try (CqlSession session = newSession().build())
         {
-//            initKeySpace(session);
             var drop = session.execute("""
                     DROP TABLE IF EXISTS users;""");
             formatPr(drop);
-            Thread.sleep(300);
             var create = session.execute("""
                     CREATE TABLE users (
                       id int PRIMARY KEY,
                       name text
                     );""");
             formatPr(create);
-            Thread.sleep(300);
+            final String cql = "INSERT INTO users(id, name) VALUES (?,?)";
+            PreparedStatement pst = session.prepare(cql);
+            int okCount = 0;
             for (int id = 0; id < names.length; id++) {
-                ResultSet ins = session.execute(String.format(
-                        "INSERT INTO users(id, name) VALUES (%d, '%s');", id, names[id])
-                );
-                formatPr(ins);
+                if (session
+                        .execute(pst.bind(id, names[id]))
+                        .wasApplied()) {
+                    ++okCount;
+                }
             }
+            System.out.printf("%s\n -> ok: %d/%d\n", cql, okCount, names.length);
         }
-        Thread.sleep(1000);
         final var count = new AtomicInteger();
         //try (CqlSession session = newSession().build())
         {
@@ -154,11 +137,77 @@ public class AppTest {
                 });
             }
         }
-        Thread.sleep(100);
         System.out.println("Count: " + count.get());
     }
 
-    /* todo s
+    public static class Race {
+        public int id, dist, participants;
+
+        @SuppressWarnings("unused")
+        public Race() {
+        }
+
+        public Race(int id, int dist, int participants) {
+            this.id = id;
+            this.dist = dist;
+            this.participants = participants;
+        }
+
+        @Override
+        public String toString() {
+            return " {" +
+                   "id=" + id +
+                   ", dist=" + dist +
+                   ", participants=" + participants +
+                   '}';
+        }
+    }
+
+
+/*  @Entity @CqlName("myKeySp.Race")
+    static class Race2 {
+        @PartitionKey public int id;
+        public int dist, participants;
+    }*/
+
+    @Test
+    public void jsonData() throws JsonProcessingException {
+        formatPr(session.execute("DROP TABLE IF EXISTS myKeySp.Race"));
+        formatPr(session.execute("""
+                CREATE TABLE myKeySp.Race (
+                  id int PRIMARY KEY,
+                  dist int,
+                  participants int
+                )"""));
+        final int[] distKm = {5, 10, 50, 100};
+        var rnd = new Random();
+        for (int id = 0; id < distKm.length; id++) {
+            int count = rnd.nextInt(90);
+            String json = id == 0
+                    ? Utils.objMapper.writeValueAsString(new Race(id, distKm[id], count))
+                    : """
+                    { "dist":%d,"participants":%d,"id":%d}"""
+                    .formatted(distKm[id], count, id);
+            ResultSet res = session.execute(
+                    "INSERT INTO myKeySp.Race JSON '" + json + "'");
+            if (id == 0) formatPr(res);
+        }
+
+        ResultSet res = session.execute("SELECT * from myKeySp.Race");
+        formatPr(res);
+
+        String query = "SELECT JSON * from myKeySp.Race;";
+        ResultSet resJson = session.execute(query);
+        System.out.println(query);
+        System.out.print(Utils.execInfo(resJson));
+        for (Row row : resJson) {
+            String json = row.getString(0);
+            Race obj = Utils.objMapper.readValue(json, Race.class);
+            System.out.println(obj);
+        }
+    }
+
+    /* Key structures etc.:
         //Primary key column
         CREATE TABLE users (
           userid text PRIMARY KEY,
