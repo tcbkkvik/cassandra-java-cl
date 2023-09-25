@@ -24,15 +24,21 @@ public class AppTest {
     static final Logger logger = LoggerFactory.getLogger(AppTest.class);
     private static CqlSession session;
 
-//    @Before
     @BeforeClass
-    public static void before() {
-        session = new SessionBuilder().build();
+    public static void beforeClass() {
+        session = new SessionBuilder()
+//                .timeoutSeconds(15)
+//                .port(9042)
+//                .datacenter("datacenter1")
+//                .replicationClass(SessionBuilder.ReplicationClass.SimpleStrategy)
+//                .replicationFactor(1)
+                .applicationName("learnCasApp")
+                .keySpace("myKeySp")
+                .build();
     }
 
-//    @After
     @AfterClass
-    public static void after() {
+    public static void afterClass() {
         session.close();
     }
 
@@ -208,7 +214,7 @@ public class AppTest {
     }
 
     /* Key structures etc.:
-        //Primary key column
+        //Primary key column,  set, list, map
         CREATE TABLE users (
           userid text PRIMARY KEY,
           first_name text,

@@ -6,7 +6,7 @@ This Cassandra Maven/Docker project was initiated with:
 Github: https://github.com/tcbkkvik/cassandra-java-cl
 
 Some docs:
- https://cassandra.apache.org/doc/
+ https://cassandra.apache.org/doc/4.1.3/cassandra/cql/types.html
  https://hub.docker.com/_/cassandra/
  https://www.datastax.com/blog/deep-look-cql-where-clause
  https://www.datastax.com/blog/allow-filtering-explained
@@ -38,6 +38,12 @@ ScyllaDB - a Cassandra alternative (compatible with CQL & features):
 
 -------------------------------
 A few key commands:
+  (NB edit/fix docker-compose.yml before running 'docker compose' (or 'docker-compose');
+   Replace _______ with your absolute path (absolute if on Windows):
+        volumes:
+          - _______/cassandra-java-cl/myDB:/var/lib/cassandra
+   Or alternatively, comment out  #volumes: and path below
+  )
 docker compose up
 docker inspect -f '{{.NetworkSettings.IPAddress}}' mycassandra
 docker inspect --format='{{range .NetworkSettings.Networks}}{{println .IPAddress}}{{end}}' mycassandra

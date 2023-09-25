@@ -22,11 +22,11 @@ public class SessionBuilder {
     private int replicationFactor = 1;
     private String applicationName = "learnCasApp";
 
-    @SuppressWarnings("unused")
     public enum ReplicationClass {
         //SELECT * FROM system_schema.keyspaces;
         SimpleStrategy,
         NetworkTopologyStrategy,
+        EverywhereStrategy,
         LocalStrategy
     }
 
@@ -69,7 +69,7 @@ public class SessionBuilder {
         Properties pr = System.getProperties();
         pr.setProperty("datastax-java-driver.basic.request.timeout", timeout);
         UUID clientId = UUID.randomUUID();
-        logger.info("newSession, cliendId " + clientId);
+        logger.info("newSession, clientId " + clientId);
         CqlSession session = CqlSession.builder()
                 .withApplicationName(applicationName)
                 .withClientId(clientId)

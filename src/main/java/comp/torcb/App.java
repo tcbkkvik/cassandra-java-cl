@@ -55,7 +55,7 @@ INSERT INTO NerdMovies JSON '{"movie": "Serenity", "director": "Joss Whedon", "y
 
          */
 
-    void initSchemas(CqlSession session) {
+    static void initSchemas(CqlSession session) {
 //        int replication_factor = 3;
         int replication_factor = 1;
         ResultSet rsKS = session
@@ -78,7 +78,7 @@ INSERT INTO NerdMovies JSON '{"movie": "Serenity", "director": "Joss Whedon", "y
 
     }
 
-    void accessDb(CqlSession session) throws InterruptedException {
+    static void accessDb(CqlSession session) throws InterruptedException {
         ResultSet rsIns1 = session
                 .execute("INSERT INTO t (pk, ix, tx, st) VALUES (0, 2, 'val2', 'static2');");
         formatPr(rsIns1);
@@ -106,13 +106,8 @@ INSERT INTO NerdMovies JSON '{"movie": "Serenity", "director": "Joss Whedon", "y
 
     }
 
-    void tryConnectCassandra() throws InterruptedException {
-        var myClientId = UUID.randomUUID();
-//        try (CqlSession session = new CqlSessionBuilder()
-        try (CqlSession session = CqlSession.builder()
-                .withApplicationName("learnCasApp")
-                .withClientId(myClientId)
-                .build()) {
+    public static void main(String[] args) throws InterruptedException {
+        try (CqlSession session = new SessionBuilder().build()) {
             ResultSet rs = session.execute("select release_version from system.local");
             Row row = rs.one();
             if (row != null) {
@@ -122,9 +117,5 @@ INSERT INTO NerdMovies JSON '{"movie": "Serenity", "director": "Joss Whedon", "y
                 accessDb(session);
             }
         }
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        new App().tryConnectCassandra();
     }
 }
