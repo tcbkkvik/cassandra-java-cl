@@ -1,4 +1,53 @@
 
+************************************************
+  Cassandra database server + Java CQL client;
+  To get started with CQL client coding..
+************************************************
+
+Preconditions - recommended installations:
+    * Docker Desktop >=4.21.1 (https://docs.docker.com/get-docker/)
+        For installing & running Cassandra image (server) via docker & docker compose commands
+        (An alternative: Rancher Desktop https://rancherdesktop.io/)
+
+    * IDE/Debugger: IntelliJ IDEA >=2022.3 Community ed.(latest 2023.2)
+        https://www.jetbrains.com/idea/download/other.html
+
+    * Java 17 - multiple sources, examples:
+        https://openjdk.org/projects/jdk/17/
+        https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html
+
+    * Apache Maven >=3.8.5 (NB Maven also comes bundled with IntelliJ IDEA Community)
+        For building this Java Cassandra/CQL client
+        https://maven.apache.org/download.cgi
+
+-------------------------------
+Getting started
+
+1. Install recommended software listed above
+2. Start Cassandra server:
+    * Cd to directory where docker-compose.yml is (cassandra-java-cl/)
+    * In docker-compose.yml, fix 'volumes:' path:
+        "   volumes:
+              - /_YOUR_ABSOLUTE_PATH/cassandra-java-cl/myDB:/var/lib/cassandra
+        "
+        (On windows, docker seems to require absolute path to where your 'cassandra-java-cl' is)
+    * run:
+        > docker compose up -d
+    * want until Cassandra server has started. You can check by querying docker logs:
+        > docker compose logs
+        > docker ps
+        //expected row looks something like this:
+        // db02c97715b4   cassandra:4.1.3   "docker-entrypoint.s…"   3 weeks ago    Up 29 hours   7001/tcp, 0.0.0.0:7000->7000/tcp, 7199/tcp, 0.0.0.0:9042->9042/tcp, 9160/tcp   mycassandra
+
+3. Run unit tests in comp.torcb.AppTest (@Test..)
+    All should succeed if Cassandra server succeeded starting.
+
+4. Run unit tests in App2Test, and fix bugs..
+
+5. Or, implement any Cassandra CQL client calls.
+    Use this as basis.
+
+-------------------------------
 
 This Cassandra Maven/Docker project was initiated with:
 > mvn archetype:generate -D groupId=comp.torcb -D artifactId=cassandra-java -D archetypeArtifactId=maven-archetype-quickstart -D archetypeVersion=1.4 -D interactiveMode=false
@@ -6,15 +55,18 @@ This Cassandra Maven/Docker project was initiated with:
 Github: https://github.com/tcbkkvik/cassandra-java-cl
 
 Some docs:
+ https://cassandra.apache.org/doc/4.1.3/cassandra/getting_started/index.html
  https://cassandra.apache.org/doc/4.1.3/cassandra/cql/types.html
+ https://cassandra.apache.org/doc/4.1.3/cassandra/cql/json.html
  https://hub.docker.com/_/cassandra/
  https://www.datastax.com/blog/deep-look-cql-where-clause
  https://www.datastax.com/blog/allow-filtering-explained
+ https://www.datastax.com/resources/whitepaper/data-modeling-apache-cassandra
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/core/
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/query_builder/
  https://docs.datastax.com/en/developer/java-driver/4.17/manual/mapper/
- https://docs.datastax.com/en/cql-oss/3.3/cql/cql_using/useInsertJSON.html
  https://docs.datastax.com/en/driver-matrix/docs/driver-matrix.html#quick_start/qsQuickstart_c.html
+ https://www.odbms.org/wp-content/uploads/2014/06/WP-IntroToCassandra.pdf
  https://stackoverflow.com/questions/16870502/how-to-connect-cassandra-using-java-class
  https://github.com/datastaxdevs/workshop-intro-to-cassandra
  https://www.youtube.com/watch?v=yShQIKMt4sI
@@ -44,7 +96,8 @@ A few key commands:
           - _______/cassandra-java-cl/myDB:/var/lib/cassandra
    Or alternatively, comment out  #volumes: and path below
   )
-docker compose up
+docker compose up --help
+docker compose up -d
 docker inspect -f '{{.NetworkSettings.IPAddress}}' mycassandra
 docker inspect --format='{{range .NetworkSettings.Networks}}{{println .IPAddress}}{{end}}' mycassandra
  -- eg. 172.22.0.3
@@ -54,9 +107,10 @@ docker compose stop
 docker compose start
 
 -------------------------------
-Examples from running CQL commands in bash -> cqlsh:
-PS C:\Users\torc\IdeaProjects\cassandra\cassandra-java> docker exec -it mycassandra bash
-root@de2015d844d3:/# cqlsh
+Running CQL commands in bash -> cqlsh:
+
+PS ..\cassandra-java>   docker exec -it mycassandra bash
+root@de2015d844d3:/#    cqlsh
 Connected to Test Cluster at 127.0.0.1:9042
 [cqlsh 6.0.0 | Cassandra 4.0.11 | CQL spec 3.4.5 | Native protocol v5]
 Use HELP for help.
