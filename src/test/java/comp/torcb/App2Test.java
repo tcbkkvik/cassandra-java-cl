@@ -1,6 +1,9 @@
 package comp.torcb;
 
 import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.BoundStatement;
+import com.datastax.oss.driver.api.core.cql.PreparedStatement;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -178,5 +181,34 @@ public class App2Test {
         System.out.println(db);
         assertEquals(db.processCountExpect, db.processCount);
         assertTrue(db.loadedMB < 2500);
+    }
+
+    @Test
+    public void testCompositeKey() throws JsonProcessingException {
+        session.execute("DROP TABLE IF EXISTS ktab;");
+        ResultSet createR = session.execute("""
+                CREATE TABLE ktab(
+                    p1 int,
+                    p2 int,
+                    c int,
+                    f int,
+                    PRIMARY KEY ((p1,p2), c, f)
+                );""");
+        PreparedStatement prep = session.prepare("INSERT INTO ktab (p1,p2,c,f) VALUES (?,?,?,?);");
+        int[] vals = {1, 2};
+        for (int p1 : vals) {
+            for (int p2 : vals) {
+                for (int c : new int[]{21, 7, 49}) {
+                    for (int f : new int[]{70, 51, 103}) {
+                        BoundStatement bound = prep.bind(p1, p2, c, f);
+                        ResultSet insR = session.execute(bound);
+                    }
+                }
+            }
+        }
+        formatPr(session.execute("SELECT * FROM ktab WHERE p2=1 ALLOW FILTERING;"));
+//        formatPr(session.execute("SELECT * FROM ktab WHERE p2=1;")); //illegal - todo create index
+        //ORDER BY clauses can select a single column only
+        formatPr(session.execute("SELECT * FROM ktab WHERE p1=1 and p2=1 ORDER BY c desc,f desc;"));
     }
 }

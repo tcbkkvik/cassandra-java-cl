@@ -5,18 +5,18 @@
 ************************************************
 
 Preconditions - recommended installations:
-    * Docker Desktop >=4.21.1 (https://docs.docker.com/get-docker/)
-        For installing & running Cassandra image (server) via docker & docker compose commands
-        (An alternative: Rancher Desktop https://rancherdesktop.io/)
+    * Docker Desktop >=4.21.1 ? (https://docs.docker.com/get-docker/)
+        Or Rancher Desktop (https://rancherdesktop.io/)
+        For running Cassandra server
 
-    * IDE/Debugger: IntelliJ IDEA >=2022.3 Community ed.(latest 2023.2)
-        https://www.jetbrains.com/idea/download/other.html
+    * IDE/Debugger: IntelliJIDEA or VSCode
+        IntelliJ IDEA Community >=2022.3 ? https://www.jetbrains.com/idea/download/other.html
 
     * Java 17 - multiple sources, examples:
         https://openjdk.org/projects/jdk/17/
         https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html
 
-    * Apache Maven >=3.8.5 (NB Maven also comes bundled with IntelliJ IDEA Community)
+    * Apache Maven >=3.8.5 ? (NB Maven comes bundled in IntelliJ IDEA Community)
         For building this Java Cassandra/CQL client
         https://maven.apache.org/download.cgi
 
@@ -30,7 +30,7 @@ Getting started
         "   volumes:
               - /_YOUR_ABSOLUTE_PATH/cassandra-java-cl/myDB:/var/lib/cassandra
         "
-        (On windows, docker seems to require absolute path to where your 'cassandra-java-cl' is)
+        (Or comment it out. On windows, docker seems to require absolute path to where your 'cassandra-java-cl' is)
     * run:
         > docker compose up -d
     * want until Cassandra server has started. You can check by querying docker logs:

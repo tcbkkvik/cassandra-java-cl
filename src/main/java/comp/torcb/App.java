@@ -5,7 +5,6 @@ import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import static comp.torcb.Utils.formatPr;
 
-import java.util.UUID;
 
 /**
  * Hello world!
@@ -60,7 +59,7 @@ INSERT INTO NerdMovies JSON '{"movie": "Serenity", "director": "Joss Whedon", "y
         int replication_factor = 1;
         ResultSet rsKS = session
                 .execute("CREATE KEYSPACE IF NOT EXISTS myKeySp\n" +
-                         " WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : "
+                         " WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor' : "
                          + replication_factor + "};");
         formatPr(rsKS);
         ResultSet rsUse = session
@@ -75,6 +74,12 @@ INSERT INTO NerdMovies JSON '{"movie": "Serenity", "director": "Joss Whedon", "y
                          "  PRIMARY KEY (pk, ix)\n" +
                          ");");
         formatPr(rsCreateTable);
+        /*Some examples of primary key definition are:
+
+        PRIMARY KEY (a): a is the single partition key and there are no clustering columns
+        PRIMARY KEY (a, b, c) : a is the single partition key and b and c are the clustering columns
+        PRIMARY KEY ((a, b), c) : a and b compose the composite partition key and c is the clustering column
+        */
 
     }
 
