@@ -4,6 +4,7 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.BoundStatement;
 import com.datastax.oss.driver.api.core.cql.PreparedStatement;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.servererrors.InvalidQueryException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -183,8 +184,9 @@ public class App2Test {
         assertTrue(db.loadedMB < 2500);
     }
 
+    @SuppressWarnings("unused")
     @Test
-    public void testCompositeKey() throws JsonProcessingException {
+    public void testCompositeKey() {
         session.execute("DROP TABLE IF EXISTS ktab;");
         ResultSet createR = session.execute("""
                 CREATE TABLE ktab(
@@ -192,13 +194,15 @@ public class App2Test {
                     p2 int,
                     c int,
                     f int,
-                    PRIMARY KEY ((p1,p2), c, f)
+                    PRIMARY KEY ((p1,p2), c)
                 );""");
         PreparedStatement prep = session.prepare("INSERT INTO ktab (p1,p2,c,f) VALUES (?,?,?,?);");
         int[] vals = {1, 2};
         for (int p1 : vals) {
             for (int p2 : vals) {
+                //p1,p2: composite partition key
                 for (int c : new int[]{21, 7, 49}) {
+                    //c: cluster key
                     for (int f : new int[]{70, 51, 103}) {
                         BoundStatement bound = prep.bind(p1, p2, c, f);
                         ResultSet insR = session.execute(bound);
@@ -206,9 +210,44 @@ public class App2Test {
                 }
             }
         }
+        try {
+            formatPr(session.execute("SELECT * FROM ktab WHERE p2=1;"));
+            //illegal -> CREATE INDEX?
+        } catch (InvalidQueryException e) {
+            System.out.println(e.getMessage());
+            //Cannot execute this query as it might involve data filtering and thus
+            // may have unpredictable performance. If you want to execute this query
+            // despite the performance unpredictability, use ALLOW FILTERING
+        }
         formatPr(session.execute("SELECT * FROM ktab WHERE p2=1 ALLOW FILTERING;"));
-//        formatPr(session.execute("SELECT * FROM ktab WHERE p2=1;")); //illegal - todo create index
         //ORDER BY clauses can select a single column only
-        formatPr(session.execute("SELECT * FROM ktab WHERE p1=1 and p2=1 ORDER BY c desc,f desc;"));
+        formatPr(session.execute("SELECT * FROM ktab WHERE p1=1 and p2=1 ORDER BY c desc;"));
     }
+
+    /*
+        todo fix unit tests
+        todo other?:
+        - Rollback:
+            Think of alternatives for compensation for
+            missing Rollback functionality in Cassandra/CQL
+
+        - Implement DAO mapping, using higher-level datastax mapper library.
+            (com.datastax.oss:java-driver-mapper-runtime-4.17.0.jar)
+            For example, by copying java example from javadoc in
+               com.datastax.oss.driver.api.mapper.annotations.DaoFactory:
+            " // Example 1: the session has a default keyspace
+              CqlSession session = CqlSession.builder().withKeyspace("test").build();
+              InventoryMapper inventoryMapper = new InventoryMapperBuilder(session).build();
+              ProductDao dao = inventoryMapper.productDao();
+              Product product = dao.selectById(1);
+           "
+
+        - CREATE INDEX: implement in unit test (see testCompositeKey() above)
+            https://cassandra.apache.org/doc/4.1.3/cassandra/cql/indexes.html
+            Eg. "CREATE INDEX userIndex ON NerdMovies (user);"
+
+        - Evaluate: Is lack of OR operator a problem?
+            https://cassandra.apache.org/doc/4.1.3/cassandra/cql/dml.html
+
+    */
 }

@@ -28,7 +28,7 @@ public class AppTest {
     public static void beforeClass() {
         session = new SessionBuilder()
 //                .timeoutSeconds(15)
-//                .port(9042)
+                .port(9042)
 //                .datacenter("datacenter1")
 //                .replicationClass(SessionBuilder.ReplicationClass.SimpleStrategy)
 //                .replicationFactor(1)
